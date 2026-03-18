@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>互動測驗｜排球與籃球傷害預防</title>
+  <style>
+    body {
+      font-family: "Microsoft JhengHei", sans-serif;
+      margin: 0;
+      background-color: #fdfdfd;
+      color: #333;
+    }
+    header {
+      background-color: #e67e22;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    nav {
+      background-color: #f39c12;
+      display: flex;
+      justify-content: center;
+      padding: 10px 0;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin: 0 20px;
+      font-weight: bold;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+    main {
+      padding: 40px 20px;
+      max-width: 900px;
+      margin: auto;
+    }
+    .question {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+    .question h3 {
+      margin-top: 0;
+    }
+    .feedback {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .correct {
+      color: green;
+    }
+    .incorrect {
+      color: red;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #e67e22;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    select {
+      padding: 8px;
+      margin-bottom: 20px;
+    }
+    #scoreSection {
+      margin-top: 40px;
+      padding: 20px;
+      background: #f0f0f0;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>互動測驗｜排球與籃球傷害預防</h1>
+    <p>挑戰你的知識，學習正確觀念！</p>
+  </header>
+
+  <nav>
+    <a href="index.html">首頁</a>
+    <a href="volleyball.html">排球專區</a>
+    <a href="basketball.html">籃球專區</a>
+    <a href="quiz.html">測驗問卷</a>
+    <a href="ranking.html">排行榜</a>
+  </nav>
+
+  <main>
+    <label for="topicSelect"><strong>選擇測驗主題：</strong></label>
+    <select id="topicSelect">
+      <option value="volleyball">🏐 排球</option>
+      <option value="basketball">🏀 籃球</option>
+    </select>
+
+    <div id="quizContainer"></div>
+
+    <div id="scoreSection" style="display:none;">
+      <h2>🎉 測驗完成！</h2>
+      <p id="scoreText"></p>
+      <label>請輸入暱稱：</label>
+      <input type="text" id="nickname" placeholder="你的名字" />
+      <button onclick="saveScore()">儲存分數並查看排行榜</button>
+    </div>
+  </main>
+  <script>
+  const questions = {
+  volleyball: [
+    {
+      type: "single",
+      question: "哪一個動作最容易造成腳踝扭傷？",
+      options: ["攔網落地", "發球", "接發球", "站著不動"],
+      answer: "攔網落地",
+      explanation: "攔網落地時若踩到隊友或地面不穩，最容易造成腳踝內翻扭傷。"
+    },
+    {
+      type: "multi",
+      question: "哪些方法有助於預防膝蓋傷害？",
+      options: ["深蹲訓練", "護膝使用", "跳繩訓練", "穿拖鞋打球"],
+      answer: ["深蹲訓練", "護膝使用", "跳繩訓練"],
+      explanation: "強化下肢肌力與使用護具能有效預防膝傷，穿拖鞋打球則非常危險。"
+    },
+    {
+      type: "truefalse",
+      question: "熱敷適合用在急性扭傷。（對／錯）",
+      answer: "錯",
+      explanation: "急性扭傷應使用冰敷，熱敷會加重腫脹。"
+    },
+    {
+      type: "single",
+      question: "以下哪一項訓練最能強化落地穩定性？",
+      options: ["仰臥起坐", "單腳平衡", "手指伸展", "肩部拉伸"],
+      answer: "單腳平衡",
+      explanation: "單腳平衡訓練能提升下肢穩定性，預防落地時扭傷。"
+    },
+    {
+      type: "multi",
+      question: "預防肩膀傷害的有效方法有哪些？",
+      options: ["肩胛穩定訓練", "外旋肌訓練", "過度扣球", "核心訓練"],
+      answer: ["肩胛穩定訓練", "外旋肌訓練", "核心訓練"],
+      explanation: "穩定肩膀與核心可減少扣球時的過度負擔。"
+    },
+    {
+      type: "truefalse",
+      question: "護膝可以完全防止膝蓋受傷。（對／錯）",
+      answer: "錯",
+      explanation: "護膝是輔助工具，仍需搭配肌力與動作訓練。"
+    },
+    {
+      type: "single",
+      question: "哪一項不是排球常見的慢性傷害？",
+      options: ["肩夾擠症候群", "跳躍膝", "手指骨折", "腰椎疲勞"],
+      answer: "手指骨折",
+      explanation: "手指骨折屬於急性傷害，其他為慢性過度使用傷害。"
+    },
+    {
+      type: "multi",
+      question: "哪些是正確的熱身順序？",
+      options: ["動態伸展", "關節活動", "技術模擬", "靜態拉筋"],
+      answer: ["動態伸展", "關節活動", "技術模擬"],
+      explanation: "熱身應以動態為主，靜態拉筋適合運動後。"
+    },
+    {
+      type: "truefalse",
+      question: "只要有護具就可以忽略訓練。（對／錯）",
+      answer: "錯",
+      explanation: "護具不能取代肌力與技術訓練。"
+    },
+    {
+      type: "single",
+      question: "若隊友落地後腳踝腫脹，應該怎麼做？",
+      options: ["立即熱敷", "繼續比賽", "冰敷並停止活動", "按摩腫脹部位"],
+      answer: "冰敷並停止活動",
+      explanation: "應立即冰敷並避免負重，防止傷勢惡化。"
+    }
+  ],
+ basketball: [
+    {
+      type: "single",
+      question: "籃球中哪個動作最容易導致膝蓋扭傷？",
+      options: ["切入變向", "罰球", "傳球", "拍球"],
+      answer: "切入變向",
+      explanation: "切入變向時膝蓋承受大量剪力，若核心與下肢控制不足，容易受傷。"
+    },
+    {
+      type: "multi",
+      question: "哪些訓練有助於預防籃球運動傷害？",
+      options: ["核心訓練", "單腳平衡", "肩部穩定", "只打比賽不練習"],
+      answer: ["核心訓練", "單腳平衡", "肩部穩定"],
+      explanation: "穩定性與肌力訓練能有效降低受傷風險，缺乏訓練反而更危險。"
+    },
+    {
+      type: "truefalse",
+      question: "腳踝扭傷後應立即熱敷。（對／錯）",
+      answer: "錯",
+      explanation: "應立即冰敷並避免負重，熱敷會加劇腫脹與出血。"
+    },
+    {
+      type: "single",
+      question: "哪一項訓練最能提升籃球防守時的穩定性？",
+      options: ["肩部拉伸", "滑步訓練", "手指靈活度", "仰臥起坐"],
+      answer: "滑步訓練",
+      explanation: "滑步訓練能提升防守時的橫向移動與穩定性。"
+    },
+    {
+      type: "multi",
+      question: "哪些裝備有助於預防籃球傷害？",
+      options: ["護踝", "護膝", "籃球鞋", "拖鞋"],
+      answer: ["護踝", "護膝", "籃球鞋"],
+      explanation: "正確裝備能提供支撐與避震，拖鞋則危險。"
+    },
+    {
+      type: "truefalse",
+      question: "只要戴護踝就不會扭傷。（對／錯）",
+      answer: "錯",
+      explanation: "護踝是輔助，仍需搭配肌力與動作控制。"
+    },
+    {
+      type: "single",
+      question: "下列哪一項最能預防籃球選手的下背痛？",
+      options: ["核心訓練", "手指伸展", "肩部拉伸", "跳繩"],
+      answer: "核心訓練",
+      explanation: "核心穩定能減少腰部負擔，預防下背痛。"
+    },
+    {
+      type: "multi",
+      question: "哪些是正確的落地技巧？",
+      options: ["雙腳平均著地", "膝蓋微彎", "腳跟先著地", "膝蓋內夾"],
+      answer: ["雙腳平均著地", "膝蓋微彎"],
+      explanation: "正確落地應雙腳吸震，避免膝蓋內夾與腳跟著地。"
+    },
+    {
+      type: "truefalse",
+      question: "比賽後應該進行靜態伸展。（對／錯）",
+      answer: "對",
+      explanation: "靜態伸展有助於肌肉放鬆與恢復。"
+    },
+    {
+      type: "single",
+      question: "若你在比賽中跌倒，手腕痛，應該怎麼做？",
+      options: ["繼續比賽", "熱敷", "冰敷並停止活動", "甩甩手腕"],
+      answer: "冰敷並停止活動",
+      explanation: "應立即停止活動並冰敷，避免加重傷勢。"
+    }
+  ]
+};
+
+
+
+  const container = document.getElementById("quizContainer");
+  const topicSelect = document.getElementById("topicSelect");
+  const scoreSection = document.getElementById("scoreSection");
+  const scoreText = document.getElementById("scoreText");
+
+  let currentTopic = "volleyball";
+  let score = 0;
+  let total = 0;
+
+  topicSelect.addEventListener("change", renderQuiz);
+  window.addEventListener("load", renderQuiz);
+
+  function renderQuiz() {
+    currentTopic = topicSelect.value;
+    const quiz = questions[currentTopic];
+    container.innerHTML = "";
+    scoreSection.style.display = "none";
+    score = 0;
+    total = quiz.length;
+
+    quiz.forEach((q, index) => {
+      const div = document.createElement("div");
+      div.className = "question";
+
+      const title = document.createElement("h3");
+      title.textContent = `${index + 1}. ${q.question}`;
+      div.appendChild(title);
+
+      const opts = q.type === "truefalse" ? ["對", "錯"] : q.options;
+      if (q.type === "single" || q.type === "truefalse") {
+        opts.forEach(opt => {
+          const label = document.createElement("label");
+          label.innerHTML = `<input type="radio" name="q${index}" value="${opt}"> ${opt}`;
+          div.appendChild(label);
+          div.appendChild(document.createElement("br"));
+        });
+      } else if (q.type === "multi") {
+        q.options.forEach(opt => {
+          const label = document.createElement("label");
+          label.innerHTML = `<input type="checkbox" name="q${index}" value="${opt}"> ${opt}`;
+          div.appendChild(label);
+          div.appendChild(document.createElement("br"));
+        });
+      }
+
+      const btn = document.createElement("button");
+      btn.textContent = "提交答案";
+      btn.onclick = () => checkAnswer(q, index, div, btn);
+      div.appendChild(btn);
+
+      container.appendChild(div);
+    });
+  }
+
+  function checkAnswer(q, index, div, btn) {
+    if (div.querySelector(".feedback")) return; // 防止重複提交
+
+    const feedback = document.createElement("div");
+    feedback.className = "feedback";
+
+    let correct = false;
+    if (q.type === "single" || q.type === "truefalse") {
+      const selected = document.querySelector(`input[name="q${index}"]:checked`);
+      if (!selected) return;
+      correct = selected.value === q.answer;
+    } else if (q.type === "multi") {
+      const selected = Array.from(document.querySelectorAll(`input[name="q${index}"]:checked`)).map(i => i.value);
+      correct = selected.length === q.answer.length && selected.every(val => q.answer.includes(val));
+    }
+
+    feedback.textContent = correct ? "✅ 答對了！" : `❌ 答錯了！正確答案是：${Array.isArray(q.answer) ? q.answer.join("、") : q.answer}`;
+    feedback.classList.add(correct ? "correct" : "incorrect");
+
+    const explain = document.createElement("div");
+    explain.textContent = `📘 說明：${q.explanation}`;
+    div.appendChild(feedback);
+    div.appendChild(explain);
+    btn.disabled = true;
+
+    if (correct) score++;
+
+    // 檢查是否所有題目都已提交
+    const allAnswered = Array.from(document.querySelectorAll(".question")).every(qDiv =>
+      qDiv.querySelector(".feedback")
+    );
+    if (allAnswered) {
+      scoreSection.style.display = "block";
+      scoreText.textContent = `你在「${currentTopic === "volleyball" ? "排球" : "籃球"}」測驗中獲得 ${score} / ${total} 分`;
+    }
+  }
+
+  function saveScore() {
+    const nickname = document.getElementById("nickname").value.trim();
+    if (!nickname) {
+      alert("請輸入暱稱！");
+      return;
+    }
+
+    const record = {
+      name: nickname,
+      score: score,
+      topic: currentTopic,
+      time: new Date().toLocaleString()
+    };
+
+    const key = "quizRanking";
+    const data = JSON.parse(localStorage.getItem(key)) || [];
+    data.push(record);
+    data.sort((a, b) => b.score - a.score);
+    localStorage.setItem(key, JSON.stringify(data.slice(0, 10)));
+
+    window.location.href = "ranking.html";
+  }
+</script>
+</body>
+</html>
